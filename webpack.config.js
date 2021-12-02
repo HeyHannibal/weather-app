@@ -21,16 +21,15 @@ devServer: {
         ]
       },
       {
-        test: /\.png$/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              mimetype: 'image/png'
-            }
-          }
-        ]
-      }
+        test: /\.svg$/,
+        use: {
+            loader: 'svg-url-loader'
+        }
+      },
+      {
+        test: /\.(png|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
     ]
   }
 };

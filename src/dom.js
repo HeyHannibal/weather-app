@@ -1,10 +1,18 @@
 import {
   divFactory, textFactory,imgFactory,qsel
 } from './shorthand';
-// import {feelsLike} from './icons/thermo.png'
-
-
+ import feelsLike from './icons/feelsLike.svg';
+ import windSpeed from './icons/windSpeed.svg';
+ import humidity from './icons/humidity.svg';
+ import chanceOfRain from './icons/chanceOfRain.svg';
+ let extraIcons = {
+   'feelsLike': feelsLike,
+   'windSpeed': windSpeed,
+   'humidity': humidity,
+   'chanceOfRain': chanceOfRain
+ }
 export default function (object) {
+  console.log(windSpeed)
   console.log(object)
   const container = qsel('#container');
   while (container.firstChild) container.firstChild.remove();
@@ -43,13 +51,8 @@ export default function (object) {
     keys.forEach(item => {
       textFactory('h3', `${keyToName(item)}`,extraDiv)
       textFactory('p',`${extra[item]['num']}`,extraDiv)
-      
+      imgFactory(`${extraIcons[`${item}`]}`,extraDiv, '','extra')
     })
-    // keys.forEach(item => {
-    //   textFactory('h3', `${keyToName(key)}`,extraDiv)
-    //   textFactory('p',`${extra[key]}`,extraDiv)
-    //    imgFactory(`${key}`, extraDiv)
-    // })
   })()
 
   const week = divFactory('week', '', container);
