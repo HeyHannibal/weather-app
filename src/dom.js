@@ -1,27 +1,66 @@
-import { elementFactory }  from './shorthand.js'
-import { divFactory } from './shorthand.js'
-import { textFactory }  from './shorthand.js'
-import { qsel }  from './shorthand.js'
-
-export default  function(object) {
-const container = qsel('#container')
-while(container.firstChild) container.firstChild.remove()
-
-let today = object.today
-let week = object.week 
-console.log(today,week)
-console.log(today['weather'][0])
+import {
+  divFactory, textFactory, qsel, imgFactory,
+} from './shorthand';
+// import {feelsLike} from './icons/thermo.png'
 
 
-for(let item in today) {
-    if((today[item])[0] != undefined) {
-       for(let prop in today[item]) {
-           textFactory('h4',`${today[item][prop]}`,container)
-       }
+export default function (object) {
+  console.log(object)
+  const container = qsel('#container');
+  while (container.firstChild) container.firstChild.remove();
+
+  const day = divFactory('day', '', container);
+  const dayMain = divFactory('dayMain', '', day)
+  const today = object.today
+  const location = today.location
+  const main = today.main
+  const extra = today.extra
+  console.log(today.extra)
+
+  let makeLocation = (function () {
+    textFactory('h1', `${location.name}`, dayMain);
+    textFactory('p', `${location.date}`, dayMain);
+  }());
+
+  let makeMain = (function () {
+    textFactory('h2', `${main.temp}C`, dayMain)
+    imgFactory(`http://openweathermap.org/img/wn/${today.main.weathericon}@2x.png`, day, '', 'wicon')
+    textFactory('p', `${main.weatherdesc}`, dayMain)
+  })()
+
+  let makeExtra = (function () {
+    function keyToName(str) {
+      return str.split('').map((letter,index) => {
+        if(index === 0) return letter.toUpperCase()
+        if (letter === letter.toUpperCase()) {
+          return ` ${letter}`
+        } else {return letter}
+      }).join('')
     }
-    textFactory('h1',`${today[item]}`,container,`${item}`)
+    let extraDiv = divFactory('extra','',day)
+    let keys = Object.keys(extra)
+    console.log(keys)
+    keys.forEach(item => {
+      textFactory('h3', `${keyToName(item)}`,extraDiv)
+      textFactory('p',`${extra[item]['num']}`,extraDiv)
+      // imgFactory(`${key}`, extraDiv)
+    })
+    // keys.forEach(item => {
+    //   textFactory('h3', `${keyToName(key)}`,extraDiv)
+    //   textFactory('p',`${extra[key]}`,extraDiv)
+    //    imgFactory(`${key}`, extraDiv)
+    // })
+  })()
 
-}
-console.log(container)
-return container
+  const week = divFactory('week', '', container);
+  const weekly = object.week;
+  weekly.forEach((item) => {
+    const oneday = divFactory('', 'weekday', week);
+    textFactory('h4', `${item.weekDay}`, oneday, '', 'week day');
+    textFactory('p', `${item.temp_max}`, oneday, '', 'week temp_max');
+    textFactory('p', `${item.temp_min}`, oneday, '', 'week temp_min');
+    imgFactory(`http://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`, oneday, '', 'wicon');
+  });
+
+  return container;
 }

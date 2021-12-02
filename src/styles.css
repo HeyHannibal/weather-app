@@ -1,3 +1,26 @@
 body{
     background-color: rgb(29, 29, 29);
+    color: rgb(209, 209, 209);
+    /* display: flex; */
+
+}
+/* #week{
+    position: relative;
+    bottom: 0;
+    display: flex;
+} */
+.weekday{
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(88, 79, 72, 0.055);
+    border-radius: 30%;
+    width: 200px;
+    height: 200px;
+
+}
+.weekday > * {
+    margin: 0;
 }
