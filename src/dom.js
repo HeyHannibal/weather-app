@@ -1,5 +1,5 @@
 import {
-  divFactory, textFactory, qsel, imgFactory,
+  divFactory, textFactory,imgFactory,qsel
 } from './shorthand';
 // import {feelsLike} from './icons/thermo.png'
 
@@ -43,7 +43,7 @@ export default function (object) {
     keys.forEach(item => {
       textFactory('h3', `${keyToName(item)}`,extraDiv)
       textFactory('p',`${extra[item]['num']}`,extraDiv)
-      // imgFactory(`${key}`, extraDiv)
+      
     })
     // keys.forEach(item => {
     //   textFactory('h3', `${keyToName(key)}`,extraDiv)
