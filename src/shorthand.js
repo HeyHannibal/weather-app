@@ -1,37 +1,49 @@
-export function elementFactory(type, id, cssClass, textContent, appendTo, src) {
+function make(type) {
   const element = document.createElement(`${type}`);
-  if (id !== undefined) element.setAttribute('id', `${id}`);
-  if (cssClass !== undefined) element.setAttribute('class', `${cssClass}`);
-  if (textContent !== undefined) element.textContent = textContent;
-  if (src !== undefined) element.src = src;
-  if (appendTo !== undefined) appendTo.append(element);
-  return element;
-}
-export function divFactory(id, cssClass, appendTo, appendEl) {
-  const element = document.createElement('div');
-  if (id !== undefined) element.setAttribute('id', `${id}`);
-  if (cssClass !== undefined) element.setAttribute('class', `${cssClass}`);
-  if (appendTo !== undefined) appendTo.append(element);
-  if (appendEl !== undefined) element.append(appendEl());
-  return element;
+  function setId(id) {
+    if(id !== '') element.setAttribute('id',`${id}`)
+  }
+  function setClass(cssClass) {
+    if(cssClass !== '') element.setAttribute('class',`${cssClass}`)
+  }
+  function addText(textContent) {
+   if(textContent !== '')  element.textContent = textContent
+  }
+  function appendElement(appendTo) {
+    if(appendTo !== '') appendTo.append(element)
+  }
+  function setSrc(src) {
+    if(src !== '') element.src = src  
+  }
+  let returnElement = () => {return element}
+  return {
+    addText,setId,setClass,setSrc,appendElement,returnElement 
+  }
 }
 export function textFactory(type, textContent, appendTo, id, cssClass) {
-  const element = document.createElement(`${type}`);
-  if (textContent !== undefined) element.textContent = textContent;
-  if (appendTo !== undefined) appendTo.append(element);
-  if (id !== undefined) element.setAttribute('id', `${id}`);
-  if (cssClass !== undefined) element.setAttribute('class', `${cssClass}`);
-  return element;
+  let text = make(`${type}`)
+  text.addText(`${textContent}`)
+  text.appendElement(appendTo)
+  text.setId(`${id}`)
+  text.setClass(`${cssClass}`)
+  return text.returnElement()
+ 
+}
+ export function divFactory(id, cssClass, appendTo) {
+  let newDiv = make('div')
+  newDiv.setId(`${id}`);
+  newDiv.setClass(`${cssClass}`)
+  newDiv.appendElement(appendTo);
+  return newDiv.returnElement()
 }
 export function imgFactory(src, appendTo, id, cssClass) {
-  const element = document.createElement('img');
-  if (src !== undefined) element.src = src;
-  if (appendTo !== undefined) appendTo.append(element);
-  if (id !== undefined) element.setAttribute('id', `${id}`);
-  if (cssClass !== undefined) element.setAttribute('class', `${cssClass}`);
-  return element;  return element;   return element;
-  return element;
+  let newImg = make('img')
+  newImg.setSrc(`${src}`)
+  newImg.appendElement(appendTo)
+  newImg.setId(`${id}`)
+  newImg.setClass(`${cssClass}`)
 }
+
 
 export function qsel(element) {
   return document.querySelector(`${element}`)
