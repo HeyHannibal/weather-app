@@ -1,23 +1,75 @@
 body{
     background-color: rgb(29, 29, 29);
     color: rgb(209, 209, 209);
-
+    height: 100vh;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 1rem;
+    font-family: 'Heebo', sans-serif;
+}
+  * {
+    box-sizing: border-box;
+}
+#container {
+    overflow: hidden; 
+   height: 100%;
+  display: flex;
+  flex-direction: column;  
+  justify-content: space-between;
+}
+#week{
+    display: flex;
+    flex-direction: row;
 }
 .weekday{
-    margin: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background-color: rgba(88, 79, 72, 0.055);
     border-radius: 30%;
-    width: 200px;
-    height: 200px;
+    
+    position: relative;
+    bottom: 0px;
+    align-self: flex-end;
 
 }
 .weekday > * {
     margin: 0;
 }
-.extra{
-   fill:lightcoral;
+#day{
+    display: flex;
+ flex-direction: row;
+ justify-content: space-between;
 }
+
+.extra{
+   width: 2rem;
+}
+
+#searchDiv{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+header{
+    position: fixed;
+}
+
+
+#mainTemp{
+    display: flex;
+    align-items: center;
+    gap:5px;
+    font-size: 1.5rem;
+}
+
+a{
+    font-size:2.3rem;
+    text-decoration: none;
+    margin-bottom:2px;
+    color:#d1d1d1;
+    text-decoration: solid underline 2px;
+      
+}   
