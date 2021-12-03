@@ -15,7 +15,6 @@ let extraIcons = {
 }
 
 export default function (object) {
-  console.log(object.userPref)
   const today = object.today
   const location = today.location
   const main = today.main
@@ -58,7 +57,17 @@ export default function (object) {
     textFactory('p', `${item.temp_min}`, oneday, '', 'week temp temp_min');
     imgFactory(`http://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`, oneday, '', 'wicon');
   });
+  const hours = divFactory('hours','',container)
+  const hourly = object.hour
+  console.log(hourly)
+  hourly.forEach((item) => {
+    const onehour = divFactory('','onehour',hours)
+    textFactory('h4', `${item.time}`, onehour, '', 'timeHour');
+    textFactory('p', `${item.temp}`,onehour,'','hourTemp temp') 
+    imgFactory(`http://openweathermap.org/img/wn/${item.weathericon}@2x.png`, onehour, '', 'wicon');
 
+
+  })
   return container;
 }
 export function createConvert() {

@@ -74,3 +74,20 @@ export function keyToName(str) {
 // function replaceSpace(str){
 // return  str.split(undefined).map(item=> (item === ' ') ? item = '+' : item).join(undefined)
 // }
+
+// function AmPm(time) {
+// let newTime = new Date(time)
+// let notimezone = newTime - newTime.getTimezoneOffset()
+// console.log(notimezone)
+// console.log(newTime.getTimezoneOffset())
+// console.log(newTime.getHours())
+// }
+// let j = 'Fri, 03 Dec 2021 17:00:00 GMT'
+// AmPm(j)
+
+export function  amPm(time) { 
+  let hour = time.split(' ')[4].split(':')[0]
+  let trimHour = hour.split('').filter(item => item > 0).join('')
+  if(Number(trimHour) <= 12) return `${trimHour} AM`
+  if(Number(trimHour) > 12) return `${trimHour - 12} PM` 
+}

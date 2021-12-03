@@ -1,10 +1,7 @@
 import './styles.css';
 import loadDom from './dom';
-import { elementFactory, qsel } from './shorthand'
-// const tempUnit = {
-//   celcius: ['metric','°C'],
-//   fahrenheit: ['imperial','°F'],
-// }
+import { elementFactory, qsel, amPm } from './shorthand'
+
 let userPref = {
   current: 'metric',
   symbol: '°C'
@@ -21,7 +18,6 @@ async function getCoord(arr) {
   else if (arr.length === 2) link = `http://api.openweathermap.org/geo/1.0/direct?q=${arr[0]},,${arr[1]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
   else if (arr.length === 3) link = `http://api.openweathermap.org/geo/1.0/direct?q=${arr[0]},${arr[1]},${arr[2]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
   const info = await getData(link);
-  console.log(info);
   const coord = [`${info[0].lat}`, `${info[0].lon}`];
   const { name } = info[0];
   return [name, coord];
@@ -37,6 +33,7 @@ async function getWeather(coordinatesPlusName) {
 }
 
 async function weekDayData(data) {
+  console.log(data)
   const allData = await data;
   const { current } = allData;
   const dayData = {
@@ -69,12 +66,26 @@ async function weekDayData(data) {
 
     weekData.push(day);
   }
-  console.log({ today: dayData, week: weekData });
-  return { userPref, today: dayData, week: weekData };
+  const hour = allData.hourly
+  const hourData = []; 
+  hour.forEach((item,index) => {
+    if(index < 24) {
+      let thishour = {
+       time: amPm(getDate(item.dt, allData.timezone_offset)),
+       temp: item.temp,
+        weathericon: item.weather[0].icon,
+      }
+      hourData.push(thishour)
+    }
+  })
+  console.log({ hour: hourData,userPref, today: dayData, week: weekData });
+  return { hour: hourData,userPref, today: dayData, week: weekData };
 }
 
 function getDate(day, timezone) {
+  
   return new Date((day + timezone) * 1000).toUTCString();
+
 }
 function dayOfWeek(date) {
   const daysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -133,32 +144,36 @@ submit.addEventListener('click', async (e) => {
   } else {
     const cityCntryStateArr = input.value.split(',').map((item) => item.trim());
     cityCntryStateArr[0] = replaceSpace(cityCntryStateArr[0])
-    console.log(cityCntryStateArr)
     load(weekDayData(getWeather(getCoord(cityCntryStateArr))));
-    console.log(userPref)
-
   }
 });
 
 const body = document.querySelector('body');
-const london = (weekDayData(getWeather(getCoord(['london']))));
 let load = async (data) => {
   const elements = await data;
   body.append(loadDom(elements));
 };
+const london = (weekDayData(getWeather(getCoord(['london']))));
 load(london);
 
-body.addEventListener('keyup', (e) => {
-  if (e.keyCode === 113) {
-    input.value = 'sydney';
-    submit.click();
+document.addEventListener('click', e => {
+  let convertBtn = qsel('#convert');
+  if(e.target.id === 'convert') {
+  let allTemp = document.querySelectorAll('.temp')
+  let unit = userPref.current
+  allTemp.forEach(item => {
+    if (unit === 'metric') {
+      item.textContent = tempConv(item.textContent, 'imperial')
+    } else {
+      item.textContent = tempConv(item.textContent, 'metric')
+    }
+  })
+  userPref.symbol = (userPref.symbol === '°C') ? '°F' : '°C'
+  userPref.current = (userPref.current === 'metric') ? userPref.current = 'imperial' : userPref.current = 'metric';
+  convertBtn.textContent = userPref.symbol
   }
-  if (e.keyCode === 115) {
-    input.value = 'saint+petersburg';
-    submit.click();
-  }
-
-});
+  
+})
 
 let replaceSpace = (str) => str.split('').map(item => (item === ' ') ? item = '+' : item).join('')
 
@@ -171,27 +186,6 @@ function tempConv(temp, which) {
     return fahrenheit
   }
 }
-document.addEventListener('click', e => {
-  let convertBtn = qsel('#convert');
-  if(e.target.id === 'convert') {
-  let allTemp = document.querySelectorAll('.temp')
-  let unit = userPref.current
-  allTemp.forEach(item => {
-    if (unit === 'metric') {
-      console.log('whaaa')
-      item.textContent = tempConv(item.textContent, 'imperial')
-    } else {
-      console.log('whaaa?')
-      item.textContent = tempConv(item.textContent, 'metric')
-    }
-  })
-  userPref.symbol = (userPref.symbol === '°C') ? '°F' : '°C'
-  userPref.current = (userPref.current === 'metric') ? userPref.current = 'imperial' : userPref.current = 'metric';
-  convertBtn.textContent = userPref.symbol
-  }
-  
-})
-
 function ifDecimal(num) { 
   if(num % 1 !== 0) {
     if (Number(num.toFixed(1)) === num.toFixed(0)) return Math.round(num)
@@ -199,3 +193,15 @@ function ifDecimal(num) {
   }
   else return Math.round(num)
 }
+
+
+body.addEventListener('keyup', (e) => {
+  if (e.keyCode === 113) {
+    input.value = 'sydney';
+    submit.click();
+  }
+  if (e.keyCode === 115) {
+    input.value = 'saint+petersburg';
+    submit.click();
+  }
+});
