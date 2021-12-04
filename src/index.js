@@ -73,7 +73,7 @@ async function weekDayData(data) {
     if (index < 24) {
       const thishour = {
         time: amPm(getDate(item.dt, allData.timezone_offset)),
-        temp: item.temp,
+        temp: ifDecimal(item.temp),
         weathericon: item.weather[0].icon,
       };
       hourData.push(thishour);

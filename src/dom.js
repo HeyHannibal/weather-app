@@ -15,10 +15,12 @@ const extraIcons = {
 };
 let body = qsel('body');
 export default function (object) {
+
   const { today } = object;
   const { location } = today;
   const { main } = today;
   const { extra } = today;
+  
   let searchBar = qsel(`#searchDiv`)
   body.append(searchBar)
   const container = qsel('#container');
