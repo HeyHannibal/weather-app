@@ -1,7 +1,13 @@
 import './styles.css';
 import loadDom from './dom';
 import {
-  elementFactory, qsel, amPm, getDate, dayOfWeek, replaceSpace,
+  qsel,
+  amPm,
+  getDate,
+  dayOfWeek,
+  replaceSpace,
+  tempConv,
+  ifDecimal,
 } from './helpers';
 
 const userPref = {
@@ -16,9 +22,13 @@ async function getData(input) {
 }
 async function getCoord(arr) {
   let link;
-  if (arr.length === 1) link = `http://api.openweathermap.org/geo/1.0/direct?q=${arr[0]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
-  else if (arr.length === 2) link = `http://api.openweathermap.org/geo/1.0/direct?q=${arr[0]},,${arr[1]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
-  else if (arr.length === 3) link = `http://api.openweathermap.org/geo/1.0/direct?q=${arr[0]},${arr[1]},${arr[2]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
+  if (arr.length === 1) {
+    link = `http://api.openweathermap.org/geo/1.0/direct?q=${arr[0]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
+  } else if (arr.length === 2) {
+    link = `http://api.openweathermap.org/geo/1.0/direct?q=${arr[0]},,${arr[1]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
+  } else if (arr.length === 3) {
+    link = `http://api.openweathermap.org/geo/1.0/direct?q=${arr[0]},${arr[1]},${arr[2]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
+  }
   const info = await getData(link);
   const coord = [`${info[0].lat}`, `${info[0].lon}`];
   const { name } = info[0];
@@ -29,13 +39,14 @@ async function getWeather(coordinatesPlusName) {
   const data = await coordinatesPlusName;
   const coord = data[1];
   const name = data[0];
-  const Weather = await getData(`https://api.openweathermap.org/data/2.5/onecall?lat=${coord[0]}&lon=${coord[1]}&units=${userPref.current}&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`);
+  const Weather = await getData(
+    `https://api.openweathermap.org/data/2.5/onecall?lat=${coord[0]}&lon=${coord[1]}&units=${userPref.current}&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`,
+  );
   Weather.current.name = name;
   return Weather;
 }
 
 async function weekDayData(data) {
-  console.log(data);
   const allData = await data;
   const { current } = allData;
   const dayData = {
@@ -57,16 +68,17 @@ async function weekDayData(data) {
   };
   const week = allData.daily;
   const weekData = [];
-  for (const oneDay in week) {
+  const oneDay = Object.keys(week);
+  oneDay.forEach((item) => {
     const day = {
-      date: getDate(week[oneDay].dt, allData.timezone_offset),
-      weekDay: dayOfWeek(getDate(week[oneDay].dt, allData.timezone_offset)),
-      temp_min: ifDecimal(week[oneDay].temp.min),
-      temp_max: ifDecimal(week[oneDay].temp.max),
-      weather: week[oneDay].weather,
+      date: getDate(week[item].dt, allData.timezone_offset),
+      weekDay: dayOfWeek(getDate(week[item].dt, allData.timezone_offset)),
+      temp_min: ifDecimal(week[item].temp.min),
+      temp_max: ifDecimal(week[item].temp.max),
+      weather: week[item].weather,
     };
     weekData.push(day);
-  }
+  });
   const hour = allData.hourly;
   const hourData = [];
   hour.forEach((item, index) => {
@@ -79,11 +91,11 @@ async function weekDayData(data) {
       hourData.push(thishour);
     }
   });
-  console.log({
-    hour: hourData, userPref, today: dayData, week: weekData,
-  });
   return {
-    hour: hourData, userPref, today: dayData, week: weekData,
+    hour: hourData,
+    userPref,
+    today: dayData,
+    week: weekData,
   };
 }
 
@@ -101,38 +113,43 @@ input.addEventListener('keyup', () => {
 async function doneTyping(input) {
   options.querySelectorAll('*').forEach((item) => item.remove());
   const suggestions = await getCityList(input);
-  for (const ct in suggestions) {
+  const city = Object.keys(suggestions);
+  city.forEach((item) => {
     const option = document.createElement('option');
-    option.textContent = `${suggestions[ct].city}`;
-    option.setAttribute('data-index', `${ct}`);
+    option.textContent = `${suggestions[item].city}`;
+    option.setAttribute('data-index', `${item}`);
     options.append(option);
-  }
+  });
   suggestionList = suggestions;
 }
 
 async function getCityList(city) {
-  const jData = await getData(`http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`);
+  const jData = await getData(
+    `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`,
+  );
   const cityList = [];
-  for (const ct in jData) {
-    const city = {
-      city: `${jData[ct].name}, ${jData[ct].country}`,
-      coord: [jData[ct].lat, jData[ct].lon],
+  const newcity = Object.keys(jData);
+  newcity.forEach((item) => {
+    const oneCity = {
+      city: `${jData[item].name}, ${jData[item].country}`,
+      coord: [jData[item].lat, jData[item].lon],
     };
-    if (jData[ct].country === 'US') city.city = `${jData[ct].name}, ${jData[ct].country}, ${jData[ct].state}`;
-    cityList.push(city);
-  }
+    if (jData[item].country === 'US') { oneCity.city = `${jData[item].name}, ${jData[item].country}, ${jData[item].state}`; }
+    cityList.push(oneCity);
+  });
   return cityList;
 }
 
-async function checkList() { // check if input matches any of the suggestions
+async function checkList() {
+  // check if input matches any of the suggestions
   if (suggestionList !== undefined) {
     const check = suggestionList.find((item) => item.city === input.value);
-    if (check !== undefined) return Object.values(check);// return an array for GetWeather function
+    if (check !== undefined) return Object.values(check); // return an array for GetWeather function
   }
 }
 
 const submit = document.querySelector('#submit');
-submit.addEventListener('click', async (e) => {
+submit.addEventListener('click', async () => {
   const result = await checkList();
   if (result !== undefined) {
     load(weekDayData(getWeather(checkList()))); // load coordinates from the suggestion List
@@ -148,8 +165,6 @@ let load = async (data) => {
   const elements = await data;
   body.append(loadDom(elements));
 };
-const london = (weekDayData(getWeather(getCoord(['sydney']))));
-load(london);
 
 document.addEventListener('click', (e) => {
   const convertBtn = qsel('#convert');
@@ -163,29 +178,13 @@ document.addEventListener('click', (e) => {
         item.textContent = tempConv(item.textContent, 'metric');
       }
     });
-    userPref.symbol = (userPref.symbol === '°C') ? '°F' : '°C';
-    userPref.current = (userPref.current === 'metric') ? userPref.current = 'imperial' : userPref.current = 'metric';
+    userPref.symbol = userPref.symbol === '°C' ? '°F' : '°C';
+    userPref.current = userPref.current === 'metric'
+      ? (userPref.current = 'imperial')
+      : (userPref.current = 'metric');
     convertBtn.textContent = userPref.symbol;
   }
-  
 });
-
-function tempConv(temp, which) {
-  const fahrenheit = ifDecimal((Number(temp) * 1.8) + 32);
-  const celcius = ifDecimal((Number(temp) - 32) * 0.5556);
-  if (which === 'metric') {
-    return celcius;
-  } else {
-    return fahrenheit;
-  }
-}
-function ifDecimal(num) {
-  if (num % 1 !== 0) {
-    if (Number(num.toFixed(1)) === num.toFixed(0)) return Math.round(num);
-    return num.toFixed(1);
-  }
-  return Math.round(num);
-}
 
 body.addEventListener('keyup', (e) => {
   if (e.keyCode === 113) {
@@ -202,23 +201,28 @@ function switchHide(hide, show, display) {
   hide.style.display = 'none';
 }
 
-body.addEventListener('click', e=> {
-  let buttons = document.querySelectorAll('.openH')
-  if(e.target.classList.contains('openH')) {
-    let hourContainers = document.querySelectorAll('.eigthHours')
-    hourContainers.forEach(item=> item.classList.add('hidden'))
-    console.log(e.target.id)
-    qsel(`#hours${e.target.id}`).classList.remove('hidden')
+body.addEventListener('click', (e) => {
+  const buttons = document.querySelectorAll('.openH');
+  if (e.target.classList.contains('openH')) {
+    document
+      .querySelectorAll('.openH')
+      .forEach((item) => (item.textContent = '○'));
+    e.target.textContent = '●';
+
+    const hourContainers = document.querySelectorAll('.eigthHours');
+    hourContainers.forEach((item) => item.classList.add('hidden'));
+    qsel(`#hours${e.target.id}`).classList.remove('hidden');
   }
-  if (e.target.class = 'switch') {
-    console.log(e.target.id)
+  if (e.target.class === 'switch') {
     if (e.target.id === 'showH') {
-      switchHide(qsel('#week'), qsel('#hours'), 'flex')
-      buttons.forEach(item => item.classList.remove('hidden'))
+      switchHide(qsel('#week'), qsel('#hours'), 'flex');
+      buttons.forEach((item) => item.classList.remove('hidden'));
     }
     if (e.target.id === 'showW') {
-      switchHide(qsel('#hours'), qsel('#week'), 'flex')
-      buttons.forEach(item => item.classList.add('hidden'))
+      switchHide(qsel('#hours'), qsel('#week'), 'flex');
+      buttons.forEach((item) => item.classList.add('hidden'));
     }
   }
-})
+});
+const sydney = weekDayData(getWeather(getCoord(['sydney'])));
+load(sydney);

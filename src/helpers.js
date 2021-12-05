@@ -72,9 +72,8 @@ export function keyToName(str) {
 
 export function amPm(time) {
   let hour = time.split(' ')[4].split(':')[0];
-  if(hour === '00') hour = '24';
-  console.log(hour)
-  const trimHour = hour.split('').filter((item) => item > 0 ).join('');
+  if (hour === '00') hour = '24';
+  const trimHour = hour.split('').filter((item) => item > 0).join('');
   if (Number(trimHour) <= 12) return `${trimHour} AM`;
   if (Number(trimHour) > 12) return `${trimHour - 12} PM`;
 }
@@ -85,9 +84,31 @@ export function getDate(day, timezone) {
 
 export function dayOfWeek(date) {
   const daysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  return daysArr[(new Date(date)).getDay()];
+  return daysArr[((new Date(date)).getDay())];
 }
 
 export function replaceSpace(str) {
   return str.split('').map((item) => ((item === ' ') ? item = '+' : item)).join('');
+}
+export function formatT(date) {
+  const day = `${dayOfWeek(date)}, ${(date).split(' ').splice(1, 3).join(' ')}`;
+  const min = `${((date.split(' ').splice(4, 1)).toString()).split(':')[1]}`;
+  const time = `${amPm(date).split('').splice(0, 2).join('')}:${min}${amPm(date).split('').splice(2).join('')}`;
+  return [day, time];
+}
+export function ifDecimal(num) {
+  if (num % 1 !== 0) {
+    if (Number(num.toFixed(1)) === num.toFixed(0)) return Math.round(num);
+    return num.toFixed(1);
+  }
+  return Math.round(num);
+}
+
+export function tempConv(temp, which) {
+  const fahrenheit = ifDecimal((Number(temp) * 1.8) + 32);
+  const celcius = ifDecimal((Number(temp) - 32) * 0.5556);
+  if (which === 'metric') {
+    return celcius;
+  }
+  return fahrenheit;
 }

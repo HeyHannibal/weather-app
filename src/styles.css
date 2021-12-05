@@ -5,7 +5,8 @@ html, body {
     overflow: auto;
 }
 body{
-    background-color: rgb(29, 29, 29);
+    background: hsla(240, 21%, 6%, 1);
+    background: linear-gradient(45deg, hsla(240, 21%, 6%, 1) 0%, hsla(336, 14%, 21%, 1) 0%, hsla(0, 15%, 15%, 1) 81%, rgb(19, 13, 12) 100%);
     background: url('./background/background3.jpg');
     background-size: cover;
     background-repeat: no-repeat;
@@ -13,10 +14,20 @@ body{
     margin: 0;
     padding: 3rem 3rem 2rem 3rem;
     font-family:'Montserrat', sans-serif;
-    backdrop-filter: blur(10px);
     height: 100%;
-    
-
+    backdrop-filter: blur(10px);
+}
+p, h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
+#container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;  
+    justify-content: space-between;
+    animation: fadeInAnimation ease 3s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
 }
 @keyframes fadeInAnimation {
     0% {
@@ -26,36 +37,15 @@ body{
         opacity: 1;
      }
 }
- #overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: -10;
-    background-color: rgba(26, 10, 2, 0.514);
-    animation: fadeInAnimation ease 3s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-} 
-
 * {
     box-sizing: border-box;
 }
-#container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;  
-  justify-content: space-between;
-  animation: fadeInAnimation ease 3s;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-}
+/* weekHour */
 #weekHour{
     width: 100%;
     align-self: flex-end;
 }
-p, h1, h2, h3, h4, h5, h6 {
-    margin: 0;
-}
+
 #week{
     display: flex;
     flex-direction: row;
@@ -67,8 +57,6 @@ p, h1, h2, h3, h4, h5, h6 {
     justify-content: space-around;
     
 }
-
-
 .onehour{
     display: flex;
     flex-direction: column;
@@ -83,11 +71,8 @@ p, h1, h2, h3, h4, h5, h6 {
     position: relative;
     bottom: 0px;
     align-self: flex-end;
+}
 
-}
-.weekday > * {
-    margin: 0;
-}
 .weekday > .temp, .hourTemp {
     font-size: 2.5rem;
     font-weight: 500;
@@ -99,15 +84,15 @@ p, h1, h2, h3, h4, h5, h6 {
 .weekday h4 {
     font-weight: 400;
 }
-.onehour p{
-    font-weight: 500;
-    font-size: 2.5rem;
-}
-#day{
+/* weekHour */
+
+/* day */
+#day{ 
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
+
 #extra{
     display: grid;
     grid-template-rows: repeat(4, 1fr);
@@ -118,10 +103,10 @@ p, h1, h2, h3, h4, h5, h6 {
    max-width: 1.5rem;
 }
 .extraProp{
-        align-items: center;
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        grid-template-rows: 1fr;
+    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: 1fr;
 }
 .extraTextDiv p{
     font-size: 1.5rem;
@@ -148,12 +133,19 @@ header{
     font-size: 1.5rem;
 }
 a{
+    cursor: pointer;
     font-size:2.3rem;
     text-decoration: none;
-    margin-bottom:2px;
+    margin-bottom: -0.8rem;
     color:#d1d1d1;
     text-decoration: solid underline 2px; 
-}   
+} 
+#dayMain h2{
+    margin-top: 1rem;
+}
+/* day */
+
+/* hours */
 #hours{
     display: flex;
 }
@@ -161,26 +153,102 @@ a{
     display: flex;
     width: 100%;
 }
+
 *.hidden {
     display: none;
 }
+/* hours */
+
+/* switch */
+#switchCont{
+    padding-bottom: 1rem;
+    align-self:baseline
+}
+#switchCont{
+    display: flex;
+    align-items: center;
+}
+.switch{
+    margin: 0px 2px 2px 2px;
+    margin-top: 1rem;
+    background: rgba(211, 146, 121, 0.212);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 1.2rem;
+    border:none;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.452);
+    width: 7rem;
+    height: 2rem;
+    color: rgb(247, 247, 247);
+    margin-bottom: 10px;
+    
+}
+.openH{
+    margin: 0px;
+    padding: 0px;
+    color: rgb(247, 247, 247);
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size:2.5rem;
+    text-shadow: 1px 1px 10px black;
+    border:none;
+}
+/* switch */
+
+/* searchDiv */
 #searchDiv{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin-top: auto;
     margin-bottom: auto;
     align-self: center;
 }
-#submit{
+input{
+    margin: 0;
     border: none;
-    background-color: coral;
-    height: 20px;
-    width: 80px;
+    height: 1.5rem;
+    width: 12rem;
+    background-color: rgba(243, 243, 243, 0.925);
+    border-radius: 2px 0px 0px 5px;
+    box-shadow: 2px 3px 4px  rgba(0, 0, 0, 0.651);
+}
+#submit{
+    color: white;
+    margin: 0;
+    border: none;
+    box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.651);
+    background:rgb(192, 96, 61);
+    width: 5rem;
+    height: 1.5rem;
     font-family: 'Montserrat', sans-serif;
     font-weight: 500;
+    font-size: 1.1rem;
     border-radius: 2px 10px 2px 2px;
 }
-#switchCont{
-    padding-bottom: 1rem;
-    align-self:baseline
+/* searchDiv */
+
+@media only screen and (max-width: 800px) {
+    .weekday > * {
+        max-width: 8vh;
+    }
+    .weekday > * {
+        margin: 0;
+    }
+    .weekday > .temp, .onehour p {
+        font-size: 2rem;
+        font-weight: 500;
+        
+    }
+    .weekday > .temp_min {
+        font-size: 1.5rem;
+        font-weight: 200;
+    }
+    .weekday h4 {
+        font-weight: 400;
+    }
 }
 @media only screen and (max-width: 600px) {
     body{
@@ -222,27 +290,7 @@ a{
         
     }
 }
-
-@media only screen and (max-width: 800px) {
-    .weekday > * {
-        max-width: 8vh;
-    }
-    .weekday > * {
-        margin: 0;
-    }
-    .weekday > .temp, .onehour p {
-        font-size: 2rem;
-        font-weight: 500;
-        
-    }
-    .weekday > .temp_min {
-        font-size: 1.5rem;
-        font-weight: 200;
-    }
-    .weekday h4 {
-        font-weight: 400;
-    }
-}@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 400px) {
     .weekday > .temp, .onehour p {
         font-size: 1.5rem;
         font-weight: 500;
@@ -251,5 +299,7 @@ a{
         font-size: 1.5rem;
         font-weight: 200;
     }
-    
+    body{
+        font-size: 10px;
+    }
 }
