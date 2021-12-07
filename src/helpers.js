@@ -110,5 +110,5 @@ export function tempConv(temp, which) {
   if (which === 'metric') {
     return celcius;
   }
-  return fahrenheit;
+  else return fahrenheit;
 }

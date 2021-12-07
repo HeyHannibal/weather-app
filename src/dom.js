@@ -20,7 +20,7 @@ const extraIcons = {
   chanceOfRain,
 };
 const body = qsel('body');
-export default function (object) {
+export function loadDom(object) {
   const { today } = object;
   const { location } = today;
   const { main } = today;

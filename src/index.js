@@ -1,228 +1,150 @@
-import './styles.css';
-import loadDom from './dom';
+import "./styles.css";
+import { loadDom } from "./dom";
 import {
-  qsel,
-  amPm,
-  getDate,
-  dayOfWeek,
-  replaceSpace,
-  tempConv,
-  ifDecimal,
-} from './helpers';
+  getWeather,
+  getCoord,
+  getSuggestions,
+  userPref,
+} from "./APIfunctions";
+import { qsel, replaceSpace, tempConv } from "./helpers";
 
-const userPref = {
-  current: 'metric',
-  symbol: '°C',
-};
 
-async function getData(input) {
-  const response = await fetch(`${input}`, { mode: 'cors' });
+const storeUserData = (function () {
+  const save = (data) => {
+    localStorage.setItem(`lastSearched`, JSON.stringify(data));
+  };
+  const loadLast = () => {
+    if (localStorage.getItem("hasRunBefore") === null) {
+      let defaultCity = ["Sydney", ["-33.768528", "150.9568559523945"]];
+      localStorage.setItem("lastSearched", JSON.stringify(defaultCity));
+      load(getWeather(defaultCity));
+      localStorage.setItem("hasRunBefore", "true");
+    } else {
+      let lastSearchedCoord = JSON.parse(localStorage.getItem("lastSearched"));
+      load(getWeather(lastSearchedCoord));
+    }
+  };
+
+  return {
+    save,
+    loadLast,
+  };
+})();
+
+export async function getData(input) {
+  const response = await fetch(`${input}`, { mode: "cors" });
   const jData = await response.json();
   return jData;
 }
-async function getCoord(arr) {
-  let link;
-  if (arr.length === 1) {
-    link = `https://api.openweathermap.org/geo/1.0/direct?q=${arr[0]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
-  } else if (arr.length === 2) {
-    link = `https://api.openweathermap.org/geo/1.0/direct?q=${arr[0]},,${arr[1]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
-  } else if (arr.length === 3) {
-    link = `https://api.openweathermap.org/geo/1.0/direct?q=${arr[0]},${arr[1]},${arr[2]}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`;
-  }
-  const info = await getData(link);
-  const coord = [`${info[0].lat}`, `${info[0].lon}`];
-  const { name } = info[0];
-  return [name, coord];
-}
 
-async function getWeather(coordinatesPlusName) {
-  const data = await coordinatesPlusName;
-  const coord = data[1];
-  const name = data[0];
-  const Weather = await getData(
-    `https://api.openweathermap.org/data/2.5/onecall?lat=${coord[0]}&lon=${coord[1]}&units=${userPref.current}&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`,
-  );
-  Weather.current.name = name;
-  return Weather;
-}
-
-async function weekDayData(data) {
-  const allData = await data;
-  const { current } = allData;
-  const dayData = {
-    location: {
-      name: current.name,
-      date: getDate(allData.current.dt, allData.timezone_offset),
-    },
-    main: {
-      weatherdesc: current.weather[0].description,
-      weathericon: current.weather[0].icon,
-      temp: ifDecimal(current.temp),
-    },
-    extra: {
-      feelsLike: { num: ifDecimal(current.feels_like), icon: 'feel' },
-      humidity: { num: current.humidity, icon: 'humid' },
-      windSpeed: { num: current.wind_speed, icon: 'wind' },
-      chanceOfRain: { num: allData.daily[0].pop, icon: 'rain' },
-    },
-  };
-  const week = allData.daily;
-  const weekData = [];
-  const oneDay = Object.keys(week);
-  oneDay.forEach((item) => {
-    const day = {
-      date: getDate(week[item].dt, allData.timezone_offset),
-      weekDay: dayOfWeek(getDate(week[item].dt, allData.timezone_offset)),
-      temp_min: ifDecimal(week[item].temp.min),
-      temp_max: ifDecimal(week[item].temp.max),
-      weather: week[item].weather,
-    };
-    weekData.push(day);
-  });
-  const hour = allData.hourly;
-  const hourData = [];
-  hour.forEach((item, index) => {
-    if (index < 24) {
-      const thishour = {
-        time: amPm(getDate(item.dt, allData.timezone_offset)),
-        temp: ifDecimal(item.temp),
-        weathericon: item.weather[0].icon,
-      };
-      hourData.push(thishour);
-    }
-  });
-  return {
-    hour: hourData,
-    userPref,
-    today: dayData,
-    week: weekData,
-  };
-}
-
-const input = document.querySelector('#searchIn');
-const options = document.querySelector('datalist');
+const input = document.querySelector("#searchIn");
+const options = document.querySelector("datalist");
 let suggestionList;
 let typingTimer;
-input.addEventListener('keyup', () => {
+input.addEventListener("keyup", () => {
+  /// wait for user to stop typing, and fetch suggested cities
   clearTimeout(typingTimer);
   if (input.value) {
-    typingTimer = setTimeout(() => doneTyping(input.value), 2700);
+    typingTimer = setTimeout(() => updateSuggestions(input.value), 2500);
   }
 });
 
-async function doneTyping(input) {
-  options.querySelectorAll('*').forEach((item) => item.remove());
-  const suggestions = await getCityList(input);
+async function updateSuggestions(input) {
+  options.querySelectorAll("*").forEach((item) => item.remove());
+  const suggestions = await getSuggestions(input); // fetch suggested cities
   const city = Object.keys(suggestions);
   city.forEach((item) => {
-    const option = document.createElement('option');
+    const option = document.createElement("option"); // add them to DOM.
     option.textContent = `${suggestions[item].city}`;
-    option.setAttribute('data-index', `${item}`);
+    option.setAttribute("data-index", `${item}`);
     options.append(option);
   });
-  suggestionList = suggestions;
+  suggestionList = suggestions; // update suggestionList object with new values
 }
 
-async function getCityList(city) {
-  const jData = await getData(
-    `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`,
-  );
-  const cityList = [];
-  const newcity = Object.keys(jData);
-  newcity.forEach((item) => {
-    const oneCity = {
-      city: `${jData[item].name}, ${jData[item].country}`,
-      coord: [jData[item].lat, jData[item].lon],
-    };
-    if (jData[item].country === 'US') { oneCity.city = `${jData[item].name}, ${jData[item].country}, ${jData[item].state}`; }
-    cityList.push(oneCity);
-  });
-  return cityList;
-}
-
-async function checkList() {
-  // check if input matches any of the suggestions
+async function checkSuggestionList() {
+  // if user choose item from option list, return already fetched coords
   if (suggestionList !== undefined) {
     const check = suggestionList.find((item) => item.city === input.value);
-    if (check !== undefined) return Object.values(check); // return an array for GetWeather function
+    console.log(check);
+    if (check !== undefined) return Object.values(check);
   }
 }
 
-const submit = document.querySelector('#submit');
-submit.addEventListener('click', async () => {
-  const result = await checkList();
-  if (result !== undefined) {
-    load(weekDayData(getWeather(checkList()))); // load coordinates from the suggestion List
+const submit = document.querySelector("#submit");
+submit.addEventListener("click", async () => {
+  const suggestions = await checkSuggestionList();
+  if (suggestions !== undefined) {
+    storeUserData.save(suggestions)
+    load(getWeather(suggestions)); // first fetch weatherData from suggested coords, then load DOM
   } else {
-    const cityCntryStateArr = input.value.split(',').map((item) => item.trim()); // if suggestions don't match
-    cityCntryStateArr[0] = replaceSpace(cityCntryStateArr[0]); // fetch coordinates with user input
-    load(weekDayData(getWeather(getCoord(cityCntryStateArr)))); // then fetch the Weather
+    const cityCntryStateArr = input.value.split(",").map((item) => item.trim()); //
+    cityCntryStateArr[0] = replaceSpace(cityCntryStateArr[0]); // first fetch coordinates with user input array
+    let coordsAndName = await (getCoord(cityCntryStateArr))
+    storeUserData.save(coordsAndName)
+
+    load(getWeather(coordsAndName)); // then fetch the Weather, and load DOM
   }
 });
 
-const body = document.querySelector('body');
-let load = async (data) => {
+const body = document.querySelector("body"); /// load DOM
+async function load(data) {
   const elements = await data;
   body.append(loadDom(elements));
-};
+}
 
-document.addEventListener('click', (e) => {
-  const convertBtn = qsel('#convert');
-  if (e.target.id === 'convert') {
-    const allTemp = document.querySelectorAll('.temp');
+document.addEventListener("click", (e) => {
+  /// convert temperature units
+  const convertBtn = qsel("#convert");
+  if (e.target.id === "convert") {
+    const allTemp = document.querySelectorAll(".temp");
     const unit = userPref.current;
     allTemp.forEach((item) => {
-      if (unit === 'metric') {
-        item.textContent = tempConv(item.textContent, 'imperial');
+      if (unit === "metric") {
+        item.textContent = tempConv(item.textContent, "imperial");
       } else {
-        item.textContent = tempConv(item.textContent, 'metric');
+        item.textContent = tempConv(item.textContent, "metric");
       }
     });
-    userPref.symbol = userPref.symbol === '°C' ? '°F' : '°C';
-    userPref.current = userPref.current === 'metric'
-      ? (userPref.current = 'imperial')
-      : (userPref.current = 'metric');
+    userPref.symbol = userPref.symbol === "°C" ? "°F" : "°C";
+    userPref.current =
+      userPref.current === "metric"
+        ? (userPref.current = "imperial")
+        : (userPref.current = "metric");
     convertBtn.textContent = userPref.symbol;
   }
 });
 
-body.addEventListener('keyup', (e) => {
-  if (e.keyCode === 113) {
-    input.value = 'south+park';
-    submit.click();
-  }
-  if (e.keyCode === 115) {
-    input.value = 'saint+petersburg';
-    submit.click();
-  }
-});
 function switchHide(hide, show, display) {
   show.style.display = `${display}`;
-  hide.style.display = 'none';
+  hide.style.display = "none";
 }
-
-body.addEventListener('click', (e) => {
-  const buttons = document.querySelectorAll('.openH');
-  if (e.target.classList.contains('openH')) {
+body.addEventListener("click", (e) => {
+  /// switch between daily and weekly weather tabs
+  const buttons = document.querySelectorAll(".openH");
+  if (e.target.classList.contains("openH")) {
     document
-      .querySelectorAll('.openH')
-      .forEach((item) => (item.textContent = '○'));
-    e.target.textContent = '●';
-
-    const hourContainers = document.querySelectorAll('.eigthHours');
-    hourContainers.forEach((item) => item.classList.add('hidden'));
-    qsel(`#hours${e.target.id}`).classList.remove('hidden');
+      .querySelectorAll(".openH")
+      .forEach((item) => (item.textContent = "○"));
+    e.target.textContent = "●";
+    const hourContainers = document.querySelectorAll(".eigthHours");
+    hourContainers.forEach((item) => item.classList.add("hidden"));
+    qsel(`#hours${e.target.id}`).classList.remove("hidden");
   }
-  if (e.target.class === 'switch') {
-    if (e.target.id === 'showH') {
-      switchHide(qsel('#week'), qsel('#hours'), 'flex');
-      buttons.forEach((item) => item.classList.remove('hidden'));
+
+  if (e.target.classList.contains("switch")) {
+    if (e.target.id === "showH") {
+      switchHide(qsel("#week"), qsel("#hours"), "flex");
+      buttons.forEach((item) => item.classList.remove("hidden"));
     }
-    if (e.target.id === 'showW') {
-      switchHide(qsel('#hours'), qsel('#week'), 'flex');
-      buttons.forEach((item) => item.classList.add('hidden'));
+    if (e.target.id === "showW") {
+      switchHide(qsel("#hours"), qsel("#week"), "flex");
+      buttons.forEach((item) => item.classList.add("hidden"));
     }
   }
 });
-const sydney = weekDayData(getWeather(getCoord(['sydney'])));
-load(sydney);
+
+// const sydney = getWeather(getCoord(["sydney"]));
+// console.log(sydney);
+// load(sydney);
+ storeUserData.loadLast();
