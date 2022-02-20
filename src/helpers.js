@@ -60,6 +60,9 @@ export function imgFactory(src, appendTo, id, cssClass) {
 export function qsel(element) {
   return document.querySelector(element);
 }
+export function qsela(elements) {
+  return document.querySelectorAll(elements)
+}
 
 export function keyToName(str) {
   return str.split('').map((letter, index) => {
@@ -107,7 +110,7 @@ export function ifDecimal(num) {
 export function tempConv(temp, which) {
   const fahrenheit = ifDecimal((Number(temp) * 1.8) + 32);
   const celcius = ifDecimal((Number(temp) - 32) * 0.5556);
-  if (which === 'metric') {
+  if (which === '°C') {
     return celcius;
   }
   else return fahrenheit;

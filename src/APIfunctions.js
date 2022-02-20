@@ -1,7 +1,7 @@
 import "./styles.css";
 
 import { amPm, getDate, dayOfWeek, ifDecimal } from "./helpers";
-import { getData, sessionInfo } from "./index";
+import { getData } from "./index";
 
 export var userPref = {
   current: "metric",
@@ -9,13 +9,12 @@ export var userPref = {
 };
 
 export async function getWeather(coordinatesPlusName) {
-  console.log(coordinatesPlusName)
   const data = await coordinatesPlusName;
-  console.log(data)
   const coord = data[1];
   const name = data[0];
+  const unit = localStorage.getItem('userTempPref')
   const Weather = await getData(
-    `https://api.openweathermap.org/data/2.5/onecall?lat=${coord[0]}&lon=${coord[1]}&units=${userPref.current}&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`
+    `https://api.openweathermap.org/data/2.5/onecall?lat=${coord[0]}&lon=${coord[1]}&units=metric&appid=38c3d4c7aaa6f4ff0f56da20f2aee0e9`
   );
   Weather.current.name = name;
   return weekDayData(Weather);
@@ -85,7 +84,6 @@ export async function getCoord(arr) {
   let info = await getData(link);
   const coord = [`${info[0].lat}`, `${info[0].lon}`];
   const { name } = info[0];
-  console.log(name)
   return [name, coord];
 
 }
@@ -107,6 +105,5 @@ export async function getSuggestions(input) {
     }
     cityList.push(oneCity);
   });
-  console.log(cityList)
   return cityList;
 }

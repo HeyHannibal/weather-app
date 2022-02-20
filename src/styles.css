@@ -1,33 +1,32 @@
-html {
-    height: 100%  
-}
-html, body {
-    overflow: auto;
+html,body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
 }
 body{
     background: hsla(240, 21%, 6%, 1);
     background: linear-gradient(45deg, hsla(240, 21%, 6%, 1) 0%, hsla(336, 14%, 21%, 1) 0%, hsla(0, 15%, 15%, 1) 81%, rgb(19, 13, 12) 100%);
-    background: url('./background/background3.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
+    background-image: url('./background/background3.jpg');
     color: rgb(223, 223, 223);
-    margin: 0;
-    padding: 3rem 3rem 2rem 3rem;
+    margin: 0;   
     font-family:'Montserrat', sans-serif;
     height: 100%;
-    backdrop-filter: blur(10px);
 }
 p, h1, h2, h3, h4, h5, h6 {
     margin: 0;
 }
 #container {
-    height: 100%;
+    margin: 3rem;
+    height: calc(100% - 3rem) ;
     display: flex;
     flex-direction: column;  
     justify-content: space-between;
     animation: fadeInAnimation ease 3s;
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
+    box-sizing:border-box;
 }
 @keyframes fadeInAnimation {
     0% {
@@ -37,11 +36,13 @@ p, h1, h2, h3, h4, h5, h6 {
         opacity: 1;
      }
 }
+
 * {
     box-sizing: border-box;
 }
 /* weekHour */
 #weekHour{
+    height: auto;
     width: 100%;
     align-self: flex-end;
 }
@@ -161,7 +162,7 @@ a{
 
 /* switch */
 #switchCont{
-    padding-bottom: 1rem;
+    padding-bottom: 0.1rem;
     align-self:baseline
 }
 #switchCont{
@@ -169,20 +170,23 @@ a{
     align-items: center;
 }
 .switch{
-    margin: 0px 2px 2px 2px;
+    
     margin-top: 1rem;
-    background: rgba(211, 146, 121, 0.212);
+    background: rgba(255, 255, 255, 0.103);
     font-family: 'Montserrat', sans-serif;
     font-weight: 500;
-    font-size: 1.2rem;
+    font-size: 1rem;
     border:none;
     border-radius: 3px 3px 3px 3px;
     box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.452);
-    width: 7rem;
-    height: 2rem;
+    width: 5.2rem;
+    height: 1.6rem;
     color: rgb(247, 247, 247);
     margin-bottom: 10px;
     
+}
+.switch:first-of-type{
+    margin-right: 10px;
 }
 .openH{
     margin: 0px;
@@ -251,9 +255,7 @@ input{
     }
 }
 @media only screen and (max-width: 600px) {
-    body{
-        padding: 2rem;
-    }
+   
     #week, .eigthHours{
        flex-direction: column;
        align-content: flex-end;
@@ -290,7 +292,10 @@ input{
         
     }
 }
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 450px) {
+    #container{
+        margin: 1rem;
+    }
     .weekday > .temp, .onehour p {
         font-size: 1.5rem;
         font-weight: 500;
@@ -299,7 +304,20 @@ input{
         font-size: 1.5rem;
         font-weight: 200;
     }
+    .weekday h4 {
+        font-size: 1.1rem;
+    }
     body{
         font-size: 10px;
     }
+    .extraProp img {
+        height: 1.9rem;
+    }
+    .extraTextDiv h3{
+        font-size: 1rem;
+    }
+    .extraTextDiv p:last-of-type{
+        font-size: 1.2rem;
+    }
 }
+
